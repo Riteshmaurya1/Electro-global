@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Car Finder</title>
+    <link rel="stylesheet" href="style.css" />
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>Car Details Finder</h1>
+            <p>Type a natural-language query to get car suggestions.</p>
+        </header>
+
+        <section class="search-section">
+            <input id="queryInput" type="text"
+                placeholder="e.g. I want top 10 best 7-seater diesel cars for long trips" />
+            <button id="searchBtn">Search</button>
+        </section>
+
+        <section id="filters" class="filters-section"></section>
+
+        <section id="results" class="results-section"></section>
+
+        <section id="pagination" class="pagination-section"></section>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+
+</html>

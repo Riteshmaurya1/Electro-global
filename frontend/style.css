@@ -1,0 +1,164 @@
+* {
+  box-sizing: border-box;
+  font-family:
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+}
+
+body {
+  margin: 0;
+  background: #f3f4f6; /* light gray background */
+  color: #111827;       /* dark text */
+}
+
+.container {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 24px 16px 40px;
+}
+
+.header h1 {
+  margin: 0 0 4px;
+}
+
+.header p {
+  margin: 0 0 16px;
+  color: #6b7280; /* muted text */
+}
+
+.search-section {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.search-section input {
+  flex: 1;
+  padding: 10px 12px;
+  border-radius: 6px;
+  border: 1px solid #d1d5db;
+  background: #ffffff;
+  color: #111827;
+}
+
+.search-section button {
+  padding: 10px 16px;
+  border-radius: 6px;
+  border: none;
+  background: #2563eb; /* blue */
+  color: #f9fafb;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.search-section button:hover {
+  background: #1d4ed8;
+}
+
+.filters-section {
+  margin-bottom: 12px;
+}
+
+.filter-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  margin: 0 6px 6px 0;
+  border-radius: 999px;
+  background: #e5e7eb;  /* light pill */
+  font-size: 12px;
+  color: #374151;
+}
+
+.filter-badge span {
+  font-weight: 600;
+  margin-right: 4px;
+}
+
+.results-section {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.car-card {
+  background: #ffffff;
+  border-radius: 10px;
+  padding: 12px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+.car-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.car-header h3 {
+  margin: 0;
+  font-size: 16px;
+}
+
+.car-header span {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.car-meta {
+  font-size: 13px;
+  color: #374151;
+  margin-bottom: 4px;
+}
+
+.car-meta span {
+  display: inline-block;
+  margin-right: 8px;
+}
+
+.features-list {
+  margin-top: 8px;
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.features-list strong {
+  color: #111827;
+}
+
+.pagination-section {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.pagination-section button {
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: 1px solid #d1d5db;
+  background: #ffffff;
+  color: #374151;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.pagination-section button:hover:not([disabled]) {
+  background: #f3f4f6;
+}
+
+.pagination-section button[disabled] {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.pagination-section span {
+  font-size: 13px;
+  color: #6b7280;
+}
