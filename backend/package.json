@@ -7,7 +7,8 @@
   "type": "module",
   "main": "server.js",
   "scripts": {
-    "start": "nodemon run dev"
+    "run": "nodemon run dev",
+    "start": "node run dev"
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
