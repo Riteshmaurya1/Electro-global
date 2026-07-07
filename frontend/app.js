@@ -1,19 +1,14 @@
-// Change this to your Render backend URL
-const API_URL = "https://electro-global.onrender.com/api/cars";
-
-const limit = 10;
-let currentPage = 1;
-let lastQuery = "";
+const API_URL = "http://localhost:3000/api/cars";
 
 document.addEventListener("DOMContentLoaded", () => {
   const searchBtn = document.getElementById("searchBtn");
-  searchBtn.addEventListener("click", () => searchCars(1));
+  searchBtn.addEventListener("click", () => searchCars());
   document.getElementById("queryInput").value =
     "Suggest a family SUV under 15 lakhs with good mileage";
-  searchCars(1);
+  searchCars();
 });
 
-async function searchCars(page = 1) {
+async function searchCars() {
   const input = document.getElementById("queryInput");
   const query = input.value.trim();
 
@@ -22,26 +17,21 @@ async function searchCars(page = 1) {
     return;
   }
 
-  lastQuery = query;
-
   try {
     const response = await axios.post(
-      `${API_URL}/search?page=${page}&limit=${limit}`,
+      `${API_URL}/search`,
       { query },
-      { headers: { "Content-Type": "application/json" } }
+      { headers: { "Content-Type": "application/json" } },
     );
 
     const data = response.data;
-    currentPage = data.page || page;
 
     renderFilters(data);
     renderResults(data.cars || []);
-    renderPagination(data);
   } catch (err) {
     console.error(err);
     document.getElementById("results").innerHTML =
       "<p>Something went wrong. Please try again.</p>";
-    document.getElementById("pagination").innerHTML = "";
   }
 }
 
@@ -103,24 +93,30 @@ function renderResults(cars) {
 
   container.innerHTML = cars
     .map((car) => {
-      const featuresPreview = car.notableFeatures
-        ? car.notableFeatures.slice(0, 5).join(", ")
-        : "—";
+      const featuresPreview =
+        car.features && car.features.length
+          ? car.features.slice(0, 5).join(", ")
+          : "—";
+
+      // image, if backend provides one; falls back to a placeholder
+      const imageHtml = car.image
+        ? `<img src="${car.image}" alt="${car.brand} ${car.model}" class="car-image" />`
+        : "";
 
       return `
         <div class="car-card">
+          ${imageHtml}
           <div class="car-header">
             <h3>${car.brand} ${car.model}</h3>
             <span>${car.segment}</span>
           </div>
           <div class="car-meta">
-            <span>Price: ₹${car.priceMin} - ₹${car.priceMax} Lakhs</span>
-            <span>Mileage: ${car.mileage}</span>
+            <span>Starting ₹${car.priceMin} Lakhs</span>
+            <span>Mileage: ${car.mileage} kmpl</span>
           </div>
           <div class="car-meta">
             <span>Fuel: ${car.fuelType}</span>
             <span>Launch: ${car.launchYear}</span>
-            <span>Variants: ${car.variants}</span>
           </div>
           <div class="features-list">
             <strong>Features:</strong> ${featuresPreview}
@@ -131,27 +127,4 @@ function renderResults(cars) {
     .join("");
 }
 
-function renderPagination(meta) {
-  const container = document.getElementById("pagination");
-  const { page, totalPages, hasNextPage, hasPrevPage } = meta;
-
-  if (!totalPages || totalPages <= 1) {
-    container.innerHTML = "";
-    return;
-  }
-
-  container.innerHTML = `
-    <button ${hasPrevPage ? "" : "disabled"}
-      onclick="searchCars(${page - 1})">
-      Prev
-    </button>
-    <span>Page ${page} of ${totalPages}</span>
-    <button ${hasNextPage ? "" : "disabled"}
-      onclick="searchCars(${page + 1})">
-      Next
-    </button>
-  `;
-}
-
-// expose searchCars for inline onclick (Prev/Next buttons)
 window.searchCars = searchCars;

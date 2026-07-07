@@ -4,8 +4,6 @@ import catchAsync from "../utils/catchAsync.js";
 import { parseQueryBasic } from "../services/queryParserBasic.js";
 import { parseQueryLLM } from "../services/queryParserLLM.js";
 
-// ...imports...
-
 const USE_LLM = process.env.USE_LLM === "true";
 
 export const searchCars = catchAsync(async (req, res, next) => {
@@ -14,56 +12,50 @@ export const searchCars = catchAsync(async (req, res, next) => {
     return next(new AppError("Query is required", 400));
   }
 
-  // 1) Parse filters (LLM or basic)
-  let filters;
-  if (USE_LLM) {
-    filters = await parseQueryLLM(query);
-  } else {
-    filters = parseQueryBasic(query);
-  }
+  let filters = USE_LLM ? await parseQueryLLM(query) : parseQueryBasic(query);
+  console.log("Parsed filters:", filters);
 
   const mongoQuery = {};
 
-  if (filters.fuelType) mongoQuery.fuelType = filters.fuelType;
-  if (filters.segment) mongoQuery.segment = filters.segment;
-  if (filters.brand) mongoQuery.brand = new RegExp(filters.brand, "i");
-
-  if (filters.budgetMax) mongoQuery.priceMin = { $lte: filters.budgetMax };
-  if (filters.minSeating >= 7) {
-    mongoQuery.segment = { $in: [/SUV/i, /MPV/i] };
+  if (filters.brand) {
+    mongoQuery.brand = new RegExp(filters.brand, "i");
   }
 
-  // 2) Pagination params
-  const page = Number(req.query.page) || 1;
-  const limit = Number(req.query.limit) || 10;
-  const skip = (page - 1) * limit; // standard offset-based pagination [web:84][web:86][web:88][web:94]
+  if (filters.fuelType) {
+    mongoQuery.fuelType = new RegExp(filters.fuelType, "i");
+  }
 
-  // 3) Sort strategy
+  if (filters.minSeating >= 7 && !filters.segment) {
+    mongoQuery.segment = { $in: [/SUV/i, /MPV/i] };
+  } else if (filters.segment) {
+    mongoQuery.segment = new RegExp(filters.segment, "i");
+  }
+
+  if (filters.budgetMax) {
+    mongoQuery.priceMin = { $lte: Number(filters.budgetMax) };
+  }
+
   let sortOption = { monthlySales: -1 };
   if (filters.sortBy === "price") sortOption = { priceMin: 1 };
-  if (filters.sortBy === "mileage") sortOption = { monthlySales: -1 };
+  if (filters.sortBy === "mileage") sortOption = { mileage: -1 };
 
-  // 4) Get page of data + total count
-  const [cars, total] = await Promise.all([
-    Car.find(mongoQuery).sort(sortOption).skip(skip).limit(limit),
-    Car.countDocuments(mongoQuery),
-  ]); // counting + paginating same query is a common REST pattern [web:84][web:88][web:94]
+  console.log(
+    "Mongo query:",
+    JSON.stringify(mongoQuery),
+    "| Sort:",
+    sortOption,
+  );
 
-  const totalPages = Math.ceil(total / limit);
-  const hasNextPage = page < totalPages;
-  const hasPrevPage = page > 1;
+  // fixed set of 10 results, no pagination
+  const cars = await Car.find(mongoQuery).sort(sortOption).limit(10);
 
   if (!cars.length) {
     return res.status(200).json({
       useLLM: USE_LLM,
       parsedFilters: filters,
+      mongoQuery,
       cars: [],
-      page,
-      limit,
-      total,
-      totalPages,
-      hasNextPage,
-      hasPrevPage,
+      total: 0,
       message: "No cars matched your query. Try being less specific.",
     });
   }
@@ -72,11 +64,6 @@ export const searchCars = catchAsync(async (req, res, next) => {
     useLLM: USE_LLM,
     parsedFilters: filters,
     cars,
-    page,
-    limit,
-    total,
-    totalPages,
-    hasNextPage,
-    hasPrevPage,
+    total: cars.length,
   });
 });
