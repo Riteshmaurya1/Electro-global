@@ -1,4 +1,4 @@
-const API_URL = "http://localhost:3000/api/cars";
+const API_URL = "https://electro-global.onrender.com/api/cars";
 
 document.addEventListener("DOMContentLoaded", () => {
   const searchBtn = document.getElementById("searchBtn");
